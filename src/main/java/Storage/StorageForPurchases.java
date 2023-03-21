@@ -17,4 +17,10 @@ public class StorageForPurchases implements Storable<Purchase> {
     public void addToStorage(Purchase purchase) {
         purchaseList.add(purchase);
     }
+
+    public List<Purchase> getPurchaseList() {
+        return purchaseList;
+    }
+
+    //тут буду актуализировать данные
 }

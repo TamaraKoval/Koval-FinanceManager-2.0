@@ -28,13 +28,8 @@ public class CategorizatorCSV implements Categorizable {
 
     @Override
     public String getCategory(String name) {
-        String category;
-        if (categoriesMap.containsKey(name.toLowerCase())) {
-            category = categoriesMap.get(name.toLowerCase());
-        } else {
-            category = OTHER;
-        }
-        return category;
+        String nameInLowerCase = name.toLowerCase();
+        return categoriesMap.getOrDefault(nameInLowerCase, OTHER);
     }
 
     @Override
