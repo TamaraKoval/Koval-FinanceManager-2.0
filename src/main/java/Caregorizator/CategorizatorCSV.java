@@ -11,10 +11,11 @@ import java.util.Set;
 
 public class CategorizatorCSV implements Categorizable {
 
-    private Map<String, String> categoriesMap = new HashMap<>();
+    private Map<String, String> categoriesMap;
     private static final String OTHER = "другое";
 
     public CategorizatorCSV(File file) throws IOException {
+        categoriesMap = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
 
             String line;
@@ -42,6 +43,4 @@ public class CategorizatorCSV implements Categorizable {
         allCategoriesSet.add(OTHER);
         return allCategoriesSet.toArray(new String[0]);
     }
-
-
 }
