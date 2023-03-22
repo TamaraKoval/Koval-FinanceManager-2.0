@@ -13,18 +13,45 @@ import com.google.gson.Gson;
 public class Client {
 
     public static void main(String[] args) throws IOException {
+        Gson gson = new Gson();
 
-        Purchase purchase = getPurchase();
-        String jsonPurchase = saveAsJson(purchase);
-
-        System.out.println("\nИдет пересылка данных на сервер...\n");
+        System.out.println("Добро пожаловать в менеджер покупок!");
 
         try (Socket socket = new Socket("localhost", 8989);
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            out.println(jsonPurchase);
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("\nВы хотите добавить покупку? (да/нет)");
+            String answer;
+            int i = 0;
+            while (i < 3) {
+
+                answer = scanner.nextLine().toLowerCase();
+                if (answer.equals("да")) {
+                    System.out.println("\nВведите данные о покупке: ");
+                    Purchase purchase = getPurchase(scanner);
+                    String jsonPurchase = gson.toJson(purchase);
+                    out.println(jsonPurchase);
+                    System.out.println("Вы хотите добавить еще покупку? (да/нет)");
+                } else if (answer.equals("нет")) {
+                    out.println("0");
+                    break;
+                } else {
+                    System.out.println("Мы не поняли ваш ответ! Попробуйте еще раз");
+                    i++;
+                }
+            }
+            if (i == 3) {
+                System.out.println("Нам кажется, что вы - бот!=)\nМы сохранили ваши покупки, вам придется перезайти в программу");
+                throw new RuntimeException();
+            }
+
+            System.out.println("\nИдет пересылка данных на сервер...\n");
+
             System.out.println(in.readLine());
+            String answerToServer = scanner.nextLine().toLowerCase();
+            out.println(answerToServer);
             System.out.println(in.readLine());
         } catch (IOException e) {
             System.out.println("Не могу подключиться к серверу");
@@ -32,18 +59,10 @@ public class Client {
         }
     }
 
-    private static String saveAsJson(Purchase purchase) {
-        Gson gson = new Gson();
-        return gson.toJson(purchase);
-    }
-
-    private static Purchase getPurchase() {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("Вы входите в режим заполнения информации о покупке......");
+    private static Purchase getPurchase(Scanner scanner) {
         Purchase data = null;
         for (int k = 0; k < 3; ) {
-            System.out.println("\nВведите продукт: ");
+            System.out.println("Введите продукт: ");
             String title = scanner.nextLine();
 
             System.out.println("Введите сумму: ");
@@ -56,7 +75,7 @@ public class Client {
                 continue;
             }
 
-            System.out.println("Вы сделали покупку сегодня? да/нет");
+            System.out.println("Вы сделали покупку сегодня? (да/нет)");
             String dateAnswer = scanner.nextLine().toLowerCase();
             String date = null;
             switch (dateAnswer) {

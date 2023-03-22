@@ -29,7 +29,6 @@ public class PurchaseAnalyzer {
             value += purchase.getSum();
             mapForAnalysis.put(categorizator.getCategory(purchase.getName()), value);
         }
-        System.out.println(mapForAnalysis);
     }
 
     public void doAnalytics() {
