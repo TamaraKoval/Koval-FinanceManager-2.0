@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class StorageForPurchases implements Storable<Purchase> {
 
@@ -82,5 +81,17 @@ public class StorageForPurchases implements Storable<Purchase> {
 
     public List<Purchase> getPurchaseList() {
         return purchaseList;
+    }
+
+    public List<Purchase> getPurchaseListYear() {
+        return purchaseListYear;
+    }
+
+    public List<Purchase> getPurchaseListMonth() {
+        return purchaseListMonth;
+    }
+
+    public List<Purchase> getPurchaseListDay() {
+        return purchaseListDay;
     }
 }
