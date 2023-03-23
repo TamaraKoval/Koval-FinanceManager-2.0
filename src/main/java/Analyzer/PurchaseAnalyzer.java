@@ -1,7 +1,7 @@
 package Analyzer;
 
+import Caregorizator.Categorizable;
 import Purchase.Purchase;
-import Caregorizator.CategorizatorCSV;
 import Storage.StorageForPurchases;
 
 import java.text.ParseException;
@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class PurchaseAnalyzer {
 
-    private CategorizatorCSV categorizator;
+    private Categorizable categorizator;
     private Map<String, Integer> mapForAnalysis;
     private Map<String, Integer> mapForAnalysisYear;
     private Map<String, Integer> mapForAnalysisMonth;
@@ -19,7 +19,7 @@ public class PurchaseAnalyzer {
     private MaxCategoryReport report;
 
 
-    public PurchaseAnalyzer(CategorizatorCSV categorizator) {
+    public PurchaseAnalyzer(Categorizable categorizator) {
         this.categorizator = categorizator;
         mapForAnalysis = new HashMap<>();
         mapForAnalysisYear = new HashMap<>();
@@ -63,40 +63,32 @@ public class PurchaseAnalyzer {
     }
 
     public void doAnalytics() {
-        int maxValue = Collections.max(mapForAnalysis.values());
-        for (Map.Entry<String, Integer> kv : mapForAnalysis.entrySet()) {
-            if (kv.getValue().equals(maxValue)) {
-                MaxCategory maxCategory = new MaxCategory(kv.getKey(), kv.getValue());
-                report.setMaxCategory(maxCategory);
-            }
-        }
+        report.setMaxCategory(findMaxCategory(mapForAnalysis));
+        report.setMaxYearCategory(findMaxCategory(mapForAnalysisYear));
+        report.setMaxMonthCategory(findMaxCategory(mapForAnalysisMonth));
+        report.setMaxDayCategory(findMaxCategory(mapForAnalysisDay));
+    }
 
-        maxValue = Collections.max(mapForAnalysisYear.values());
-        for (Map.Entry<String, Integer> kv : mapForAnalysisYear.entrySet()) {
-            if (kv.getValue().equals(maxValue)) {
-                MaxCategory maxCategory = new MaxCategory(kv.getKey(), kv.getValue());
-                report.setMaxYearCategory(maxCategory);
-            }
-        }
+    public MaxCategory findMaxCategory(Map<String, Integer> map) {
+        MaxCategory maxCategory = new MaxCategory("отсутствует", 0);
 
-        maxValue = Collections.max(mapForAnalysisMonth.values());
-        for (Map.Entry<String, Integer> kv : mapForAnalysisMonth.entrySet()) {
-            if (kv.getValue().equals(maxValue)) {
-                MaxCategory maxCategory = new MaxCategory(kv.getKey(), kv.getValue());
-                report.setMaxMonthCategory(maxCategory);
+        int maxValue = Collections.max(map.values());
+        if (maxValue != 0) {
+            for (Map.Entry<String, Integer> kv : map.entrySet()) {
+                if (kv.getValue().equals(maxValue)) {
+                    maxCategory.setCategory(kv.getKey());
+                    maxCategory.setSum(kv.getValue());
+                }
             }
         }
-
-        maxValue = Collections.max(mapForAnalysisDay.values());
-        for (Map.Entry<String, Integer> kv : mapForAnalysisDay.entrySet()) {
-            if (kv.getValue().equals(maxValue)) {
-                MaxCategory maxCategory = new MaxCategory(kv.getKey(), kv.getValue());
-                report.setMaxDayCategory(maxCategory);
-            }
-        }
+        return maxCategory;
     }
 
     public MaxCategoryReport getReport() {
         return report;
+    }
+
+    public Map<String, Integer> getMapForAnalysis() {
+        return mapForAnalysis;
     }
 }
