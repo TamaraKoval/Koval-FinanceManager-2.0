@@ -12,7 +12,7 @@ import com.google.gson.Gson;
 
 public class Client {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         Gson gson = new Gson();
 
         System.out.println("Добро пожаловать в менеджер покупок!");
@@ -44,15 +44,13 @@ public class Client {
             }
             if (i == 3) {
                 System.out.println("Нам кажется, что вы - бот!=)\nМы сохранили ваши покупки, вам придется перезайти в программу");
-                throw new RuntimeException();
+            } else {
+                System.out.println("\nИдет пересылка данных на сервер...\n");
+                System.out.println(in.readLine());
+                String answerToServer = scanner.nextLine().toLowerCase();
+                out.println(answerToServer);
+                System.out.println(in.readLine());
             }
-
-            System.out.println("\nИдет пересылка данных на сервер...\n");
-
-            System.out.println(in.readLine());
-            String answerToServer = scanner.nextLine().toLowerCase();
-            out.println(answerToServer);
-            System.out.println(in.readLine());
         } catch (IOException e) {
             System.out.println("Не могу подключиться к серверу");
             e.printStackTrace();

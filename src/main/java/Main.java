@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.ParseException;
 
 public class Main {
 
@@ -28,28 +29,33 @@ public class Main {
 
                     while (true) {
                         String purchaseMessage = in.readLine();
+                        if (purchaseMessage==null) {
+                            System.out.println("Соединение сброшено");
+                            break;
+                        }
                         if (!purchaseMessage.equals("0")) {
                             Purchase currentPurchase = gson.fromJson(purchaseMessage, Purchase.class);
                             purchaseStorage.addToStorage(currentPurchase);
-                        } else { break; }
-                    }
-
-                    out.println("Сформировать статистику? (да/нет):");
-                    String answer = in.readLine();
-                    switch (answer) {
-                        case "да":
-                            analyzer.prepareDataForAnalysis(purchaseStorage);
-                            analyzer.doAnalytics();
-                            String jsonAnalytics = gson.toJson(analyzer.getCurrentAnalytics());
-                            out.println(jsonAnalytics);
+                        } else {
+                            out.println("Сформировать статистику? (да/нет):");
+                            String answer = in.readLine();
+                            switch (answer) {
+                                case "да":
+                                    analyzer.prepareDataForAnalysis(purchaseStorage);
+                                    analyzer.doAnalytics();
+                                    String jsonAnalytics = gson.toJson(analyzer.getReport());
+                                    out.println(jsonAnalytics);
+                                    break;
+                                case "нет":
+                                    out.println("Мы сохранили статистику, вы сможете запросить еще в следующий раз!");
+                                    break;
+                                default:
+                                    out.println("Извините, мы не поняли ваш ответ, вы сможете запросить статистику в следующий раз!");
+                            }
                             break;
-                        case "нет":
-                            out.println("Мы сохранили статистику, вы сможете запросить еще в следующий раз!");
-                            break;
-                        default:
-                            out.println("Извините, мы не поняли ваш ответ, вы сможете запросить статистику в следующий раз!");
+                        }
                     }
-                } catch (IOException e) {
+                } catch (IOException | ParseException e) {
                     System.out.println("Не могу стартовать сервер");
                     e.printStackTrace();
                 }
