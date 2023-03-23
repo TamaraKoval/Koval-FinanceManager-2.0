@@ -46,10 +46,15 @@ public class Client {
                 System.out.println("Нам кажется, что вы - бот!=)\nМы сохранили ваши покупки, вам придется перезайти в программу");
             } else {
                 System.out.println("\nИдет пересылка данных на сервер...\n");
-                System.out.println(in.readLine());
-                String answerToServer = scanner.nextLine().toLowerCase();
-                out.println(answerToServer);
-                System.out.println(in.readLine());
+                String answerFromServer = in.readLine();
+                if (answerFromServer==null) {
+                    System.out.println("Сервер не отвечает, перезайдите в программу");
+                } else {
+                    System.out.println(answerFromServer);
+                    String answerToServer = scanner.nextLine().toLowerCase();
+                    out.println(answerToServer);
+                    System.out.println(in.readLine());
+                }
             }
         } catch (IOException e) {
             System.out.println("Не могу подключиться к серверу");
