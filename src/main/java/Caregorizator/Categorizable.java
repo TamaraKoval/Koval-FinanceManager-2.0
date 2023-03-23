@@ -2,6 +2,6 @@ package Caregorizator;
 
 public interface Categorizable {
 
-    public String getCategory (String name);
-    public String[] getListOfCategories();
+    String getCategory (String name);
+    String[] getListOfCategories();
 }
