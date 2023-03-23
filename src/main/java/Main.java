@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         Gson gson = new Gson();
-        File storage = new File("storage.bin");
+        File storage = new File("data.bin");
         StorageForPurchases purchaseStorage;
         if (storage.exists()) {
             purchaseStorage = StorageForPurchases.loadFromBin(storage);

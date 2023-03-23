@@ -7,6 +7,7 @@ import Storage.StorageForPurchases;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PurchaseAnalyzer {
@@ -37,28 +38,18 @@ public class PurchaseAnalyzer {
             mapForAnalysisMonth.put(cat, 0);
             mapForAnalysisDay.put(cat, 0);
         }
-        for (Purchase purchase : storage.getPurchaseList()) {
-            int value = mapForAnalysis.get(categorizator.getCategory(purchase.getName()));
-            value += purchase.getSum();
-            mapForAnalysis.put(categorizator.getCategory(purchase.getName()), value);
-        }
 
-        for (Purchase purchase : storage.getPurchaseListYear()) {
-            int value = mapForAnalysisYear.get(categorizator.getCategory(purchase.getName()));
-            value += purchase.getSum();
-            mapForAnalysisYear.put(categorizator.getCategory(purchase.getName()), value);
-        }
+        fillMap(mapForAnalysis, storage.getPurchaseList());
+        fillMap(mapForAnalysisYear, storage.getPurchaseListYear());
+        fillMap(mapForAnalysisMonth, storage.getPurchaseListMonth());
+        fillMap(mapForAnalysisDay, storage.getPurchaseListDay());
+    }
 
-        for (Purchase purchase : storage.getPurchaseListMonth()) {
-            int value = mapForAnalysisMonth.get(categorizator.getCategory(purchase.getName()));
+    protected void fillMap(Map<String, Integer> map, List<Purchase> purchaseList) {
+        for (Purchase purchase : purchaseList) {
+            int value = map.get(categorizator.getCategory(purchase.getName()));
             value += purchase.getSum();
-            mapForAnalysisMonth.put(categorizator.getCategory(purchase.getName()), value);
-        }
-
-        for (Purchase purchase : storage.getPurchaseListDay()) {
-            int value = mapForAnalysisDay.get(categorizator.getCategory(purchase.getName()));
-            value += purchase.getSum();
-            mapForAnalysisDay.put(categorizator.getCategory(purchase.getName()), value);
+            map.put(categorizator.getCategory(purchase.getName()), value);
         }
     }
 
@@ -69,7 +60,7 @@ public class PurchaseAnalyzer {
         report.setMaxDayCategory(findMaxCategory(mapForAnalysisDay));
     }
 
-    public MaxCategory findMaxCategory(Map<String, Integer> map) {
+    protected MaxCategory findMaxCategory(Map<String, Integer> map) {
         MaxCategory maxCategory = new MaxCategory("отсутствует", 0);
 
         int maxValue = Collections.max(map.values());
