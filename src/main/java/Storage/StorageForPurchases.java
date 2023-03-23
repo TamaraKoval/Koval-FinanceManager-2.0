@@ -2,6 +2,7 @@ package Storage;
 
 import Purchase.Purchase;
 
+import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class StorageForPurchases implements Storable<Purchase> {
+public class StorageForPurchases implements Storable<Purchase>, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private List<Purchase> purchaseList;
     private List<Purchase> purchaseListYear;
@@ -93,5 +96,17 @@ public class StorageForPurchases implements Storable<Purchase> {
 
     public List<Purchase> getPurchaseListDay() {
         return purchaseListDay;
+    }
+
+    public void saveBin(File file) throws IOException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file))) {
+            oos.writeObject(this);
+        }
+    }
+
+    public static StorageForPurchases loadFromBin(File file) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            return (StorageForPurchases) ois.readObject();
+        }
     }
 }

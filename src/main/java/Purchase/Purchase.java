@@ -1,6 +1,8 @@
 package Purchase;
 
-public class Purchase {
+import java.io.Serializable;
+
+public class Purchase implements Serializable {
 
     private String name;
     private String date;

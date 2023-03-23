@@ -11,12 +11,19 @@ import java.text.ParseException;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         Gson gson = new Gson();
+        File storage = new File("storage.bin");
+        StorageForPurchases purchaseStorage;
+        if (storage.exists()) {
+            purchaseStorage = StorageForPurchases.loadFromBin(storage);
+        } else {
+            purchaseStorage = new StorageForPurchases();
+        }
+
         File categoriesFile = new File("categories.tsv");
         CategorizatorCSV categorizator = new CategorizatorCSV(categoriesFile);
         PurchaseAnalyzer analyzer = new PurchaseAnalyzer(categorizator);
-        StorageForPurchases purchaseStorage = new StorageForPurchases();
 
         System.out.println("Менеджер личных финансов к работе готов");
         try (ServerSocket serverSocket = new ServerSocket(8989)) {
@@ -29,7 +36,7 @@ public class Main {
 
                     while (true) {
                         String purchaseMessage = in.readLine();
-                        if (purchaseMessage==null) {
+                        if (purchaseMessage == null) {
                             System.out.println("Соединение сброшено");
                             break;
                         }
@@ -37,6 +44,7 @@ public class Main {
                             Purchase currentPurchase = gson.fromJson(purchaseMessage, Purchase.class);
                             purchaseStorage.addToStorage(currentPurchase);
                         } else {
+                            purchaseStorage.saveBin(storage);
                             out.println("Сформировать статистику? (да/нет):");
                             String answer = in.readLine();
                             switch (answer) {
