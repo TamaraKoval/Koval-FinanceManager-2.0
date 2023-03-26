@@ -72,7 +72,7 @@ class PurchaseAnalyzerTest {
 
         purchaseAnalyzer.prepareDataForAnalysis(storage);
 
-        int checkSum = purchaseAnalyzer.getMapForAnalysis().get(categorizator.getCategory(purchase.getName()));
+        int checkSum = purchaseAnalyzer.getMapForAnalysis().get(categorizator.getCategory(purchase.getTitle()));
 
         Assertions.assertEquals(expectedSum, checkSum);
     }

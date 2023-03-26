@@ -4,18 +4,18 @@ import java.io.Serializable;
 
 public class Purchase implements Serializable {
 
-    private String name;
+    private String title;
     private String date;
     private int sum;
 
-    public Purchase(String name, String date, int sum) {
-        this.name = name;
+    public Purchase(String title, String date, int sum) {
+        this.title = title;
         this.date = date;
         this.sum = sum;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
     public String getDate() {

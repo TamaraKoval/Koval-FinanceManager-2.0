@@ -47,9 +47,9 @@ public class PurchaseAnalyzer {
 
     protected void fillMap(Map<String, Integer> map, List<Purchase> purchaseList) {
         for (Purchase purchase : purchaseList) {
-            int value = map.get(categorizator.getCategory(purchase.getName()));
+            int value = map.get(categorizator.getCategory(purchase.getTitle()));
             value += purchase.getSum();
-            map.put(categorizator.getCategory(purchase.getName()), value);
+            map.put(categorizator.getCategory(purchase.getTitle()), value);
         }
     }
 
