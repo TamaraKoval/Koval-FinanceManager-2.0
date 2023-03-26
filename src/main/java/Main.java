@@ -38,8 +38,8 @@ public class Main {
                         purchaseStorage.addToStorage(currentPurchase);
                         purchaseStorage.saveBin(storage);
 
-                        analyzer.prepareDataForAnalysis(purchaseStorage);
-                        analyzer.doAnalytics();
+                        String dateForAnalysis = currentPurchase.getDate();
+                        analyzer.getAnalytics(purchaseStorage, dateForAnalysis);
                         String jsonAnalytics = gson.toJson(analyzer.getReport());
                         out.println(jsonAnalytics);
                     }

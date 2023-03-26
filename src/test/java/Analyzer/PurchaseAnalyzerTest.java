@@ -24,53 +24,30 @@ class PurchaseAnalyzerTest {
     }
 
     @Test
-    void test_prepareDataForAnalysis_keysBeforeFilling() throws ParseException {
-        String[] testList = {"еда", "быт", "другое"};
-        Mockito.when(categorizator.getListOfCategories()).thenReturn(testList);
+    void test_fillMap() {
+        int extectedSum = 100;
 
-        purchaseAnalyzer.prepareDataForAnalysis(storage);
-
-        Assertions.assertTrue(purchaseAnalyzer.getMapForAnalysis().keySet().containsAll(List.of(testList)));;
-    }
-
-    @Test
-    void test_prepareDataForAnalysis_valuesBeforeFilling() throws ParseException {
-        String[] testList = {"еда", "быт", "другое"};
-        Mockito.when(categorizator.getListOfCategories()).thenReturn(testList);
-
-        purchaseAnalyzer.prepareDataForAnalysis(storage);
-        Set<Integer> setOfGivenValues = new HashSet<>(purchaseAnalyzer.getMapForAnalysis().values());
-
-        Assertions.assertTrue(setOfGivenValues.containsAll(List.of(0)));;
-    }
-
-    @Test
-    void test_prepareDataForAnalysis_MaxMustBeZeroWithEmptyStorage() throws ParseException {
-        int expectedSum = 0;
-
-        String[] testList = {"еда", "быт", "другое"};
-        Mockito.when(categorizator.getListOfCategories()).thenReturn(testList);
-        purchaseAnalyzer.prepareDataForAnalysis(storage);
-
-        int checkSum = Collections.max(purchaseAnalyzer.getMapForAnalysis().values());;
-
-        Assertions.assertEquals(expectedSum, checkSum);
-    }
-
-    @Test
-    void test_prepareDataForAnalysis_fillAnalyzerWithStorage() throws ParseException {
-        int expectedSum = 100;
-
-        String[] testList = {"еда", "быт", "другое"};
-        Mockito.when(categorizator.getListOfCategories()).thenReturn(testList);
+        Purchase purchase = new Purchase("сухарик", "2023.03.26", 100);
+        Map<String, Integer> mapForAnalysis = new HashMap<>();
         Mockito.when(categorizator.getCategory("сухарик")).thenReturn("еда");
 
-        Purchase purchase = new Purchase("сухарик", "2023.03.21", 100);
+        purchaseAnalyzer.fillMap(mapForAnalysis, purchase);
+
+        Assertions.assertEquals(extectedSum, mapForAnalysis.get(categorizator.getCategory(purchase.getTitle())));
+    }
+
+    @Test
+    void test_getAnalytics_fillAnalyzerWithStorage() throws ParseException {
+        int expectedSum = 100;
+
+        Mockito.when(categorizator.getCategory("сухарик")).thenReturn("еда");
+
+        Purchase purchase = new Purchase("сухарик", "2023.03.26", 100);
         List<Purchase> purchaseList = new ArrayList<>();
         purchaseList.add(purchase);
         Mockito.when(storage.getPurchaseList()).thenReturn(purchaseList);
 
-        purchaseAnalyzer.prepareDataForAnalysis(storage);
+        purchaseAnalyzer.getAnalytics(storage, purchase.getDate());
 
         int checkSum = purchaseAnalyzer.getMapForAnalysis().get(categorizator.getCategory(purchase.getTitle()));
 
@@ -78,35 +55,94 @@ class PurchaseAnalyzerTest {
     }
 
     @Test
-    void test_findMaxCategory_withoutStorage() throws ParseException {
-        MaxCategory expectedMaxCategory = new MaxCategory("отсутствует", 0);
+    void test_findMaxCategory() {
+        MaxCategory expectedMaxCategory = new MaxCategory("быт", 200);
 
-        String[] testList = {"еда", "быт", "другое"};
-        Mockito.when(categorizator.getListOfCategories()).thenReturn(testList);
+        Purchase firstPurchase = new Purchase("сухарик", "2023.03.26", 100);
+        Purchase secondPurchase = new Purchase("мыло", "2023.03.26", 200);
+        Map<String, Integer> mapForAnalysis = new HashMap<>();
+        Mockito.when(categorizator.getCategory("сухарик")).thenReturn("еда");
+        Mockito.when(categorizator.getCategory("мыло")).thenReturn("быт");
 
-        purchaseAnalyzer.prepareDataForAnalysis(storage);
+        purchaseAnalyzer.fillMap(mapForAnalysis, firstPurchase);
+        purchaseAnalyzer.fillMap(mapForAnalysis, secondPurchase);
+        MaxCategory recievedMaxCategory = purchaseAnalyzer.findMaxCategory(mapForAnalysis);
 
+        Assertions.assertEquals(expectedMaxCategory, recievedMaxCategory);
+    }
+
+    @Test
+    void test_getAnalytics_wholeMap() throws ParseException {
+        MaxCategory expectedMaxCategory = new MaxCategory("быт", 200);
+
+        Purchase firstPurchase = new Purchase("сухарик", "2023.03.26", 100);
+        Purchase secondPurchase = new Purchase("мыло", "2023.03.01", 200);
+        List<Purchase> purchaseList = new ArrayList<>();
+        purchaseList.add(firstPurchase);
+        purchaseList.add(secondPurchase);
+        Mockito.when(categorizator.getCategory("сухарик")).thenReturn("еда");
+        Mockito.when(categorizator.getCategory("мыло")).thenReturn("быт");
+        Mockito.when(storage.getPurchaseList()).thenReturn(purchaseList);
+
+        purchaseAnalyzer.getAnalytics(storage, "2023.03.26");
         MaxCategory recievedMaxCategory = purchaseAnalyzer.findMaxCategory(purchaseAnalyzer.getMapForAnalysis());
 
         Assertions.assertEquals(expectedMaxCategory, recievedMaxCategory);
     }
 
     @Test
-    void test_findMaxCategory_withStorage() throws ParseException {
-        MaxCategory expectedMaxCategory = new MaxCategory("еда", 100);
+    void test_getAnalytics_mapYear() throws ParseException {
+        MaxCategory expectedMaxCategory = new MaxCategory("быт", 200);
 
-        String[] testList = {"еда", "быт", "другое"};
-        Mockito.when(categorizator.getListOfCategories()).thenReturn(testList);
-        Mockito.when(categorizator.getCategory("сухарик")).thenReturn("еда");
-
-        Purchase purchase = new Purchase("сухарик", "2023.03.21", 100);
+        Purchase firstPurchase = new Purchase("сухарик", "2023.03.26", 100);
+        Purchase secondPurchase = new Purchase("мыло", "2023.03.01", 200);
         List<Purchase> purchaseList = new ArrayList<>();
-        purchaseList.add(purchase);
+        purchaseList.add(firstPurchase);
+        purchaseList.add(secondPurchase);
+        Mockito.when(categorizator.getCategory("сухарик")).thenReturn("еда");
+        Mockito.when(categorizator.getCategory("мыло")).thenReturn("быт");
         Mockito.when(storage.getPurchaseList()).thenReturn(purchaseList);
 
-        purchaseAnalyzer.prepareDataForAnalysis(storage);
+        purchaseAnalyzer.getAnalytics(storage, "2023.03.26");
+        MaxCategory recievedMaxCategory = purchaseAnalyzer.findMaxCategory(purchaseAnalyzer.getMapForAnalysisYear());
 
-        MaxCategory recievedMaxCategory = purchaseAnalyzer.findMaxCategory(purchaseAnalyzer.getMapForAnalysis());
+        Assertions.assertEquals(expectedMaxCategory, recievedMaxCategory);
+    }
+
+    @Test
+    void test_getAnalytics_mapMonth() throws ParseException {
+        MaxCategory expectedMaxCategory = new MaxCategory("быт", 200);
+
+        Purchase firstPurchase = new Purchase("сухарик", "2023.03.26", 100);
+        Purchase secondPurchase = new Purchase("мыло", "2023.03.01", 200);
+        List<Purchase> purchaseList = new ArrayList<>();
+        purchaseList.add(firstPurchase);
+        purchaseList.add(secondPurchase);
+        Mockito.when(categorizator.getCategory("сухарик")).thenReturn("еда");
+        Mockito.when(categorizator.getCategory("мыло")).thenReturn("быт");
+        Mockito.when(storage.getPurchaseList()).thenReturn(purchaseList);
+
+        purchaseAnalyzer.getAnalytics(storage, "2023.03.26");
+        MaxCategory recievedMaxCategory = purchaseAnalyzer.findMaxCategory(purchaseAnalyzer.getMapForAnalysisMonth());
+
+        Assertions.assertEquals(expectedMaxCategory, recievedMaxCategory);
+    }
+
+    @Test
+    void test_getAnalytics_mapDay() throws ParseException {
+        MaxCategory expectedMaxCategory = new MaxCategory("еда", 100);
+
+        Purchase firstPurchase = new Purchase("сухарик", "2023.03.26", 100);
+        Purchase secondPurchase = new Purchase("мыло", "2023.03.01", 200);
+        List<Purchase> purchaseList = new ArrayList<>();
+        purchaseList.add(firstPurchase);
+        purchaseList.add(secondPurchase);
+        Mockito.when(categorizator.getCategory("сухарик")).thenReturn("еда");
+        Mockito.when(categorizator.getCategory("мыло")).thenReturn("быт");
+        Mockito.when(storage.getPurchaseList()).thenReturn(purchaseList);
+
+        purchaseAnalyzer.getAnalytics(storage, "2023.03.26");
+        MaxCategory recievedMaxCategory = purchaseAnalyzer.findMaxCategory(purchaseAnalyzer.getMapForAnalysisDay());
 
         Assertions.assertEquals(expectedMaxCategory, recievedMaxCategory);
     }

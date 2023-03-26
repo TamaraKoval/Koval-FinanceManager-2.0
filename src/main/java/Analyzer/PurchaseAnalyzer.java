@@ -7,64 +7,70 @@ import Storage.StorageForPurchases;
 import java.text.ParseException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class PurchaseAnalyzer {
 
     private Categorizable categorizator;
-    private Map<String, Integer> mapForAnalysis;
-    private Map<String, Integer> mapForAnalysisYear;
-    private Map<String, Integer> mapForAnalysisMonth;
-    private Map<String, Integer> mapForAnalysisDay;
     private MaxCategoryReport report;
-
+    Map<String, Integer> mapForAnalysis;
+    Map<String, Integer> mapForAnalysisYear;
+    Map<String, Integer> mapForAnalysisMonth;
+    Map<String, Integer> mapForAnalysisDay;
 
     public PurchaseAnalyzer(Categorizable categorizator) {
         this.categorizator = categorizator;
+        report = new MaxCategoryReport();
+    }
+
+    public void getAnalytics(StorageForPurchases storage, String dateForAnalysis) throws ParseException {
         mapForAnalysis = new HashMap<>();
         mapForAnalysisYear = new HashMap<>();
         mapForAnalysisMonth = new HashMap<>();
         mapForAnalysisDay = new HashMap<>();
-        report = new MaxCategoryReport();
-    }
 
-    public void prepareDataForAnalysis(StorageForPurchases storage) throws ParseException {
-        storage.refreshStorage();
+        String checkingYear = dateForAnalysis.substring(0, 4);
+        String checkingMonth = dateForAnalysis.substring(0, 7);
 
-        for (String cat : categorizator.getListOfCategories()) {
-            mapForAnalysis.put(cat, 0);
-            mapForAnalysisYear.put(cat, 0);
-            mapForAnalysisMonth.put(cat, 0);
-            mapForAnalysisDay.put(cat, 0);
+        for (Purchase purchase : storage.getPurchaseList()) {
+            fillMap(mapForAnalysis, purchase);
+            if (purchase.getDate().startsWith(checkingYear)) {
+                fillMap(mapForAnalysisYear, purchase);
+                if (purchase.getDate().startsWith(checkingMonth)) {
+                    fillMap(mapForAnalysisMonth, purchase);
+                    if (purchase.getDate().equals(dateForAnalysis)) {
+                        fillMap(mapForAnalysisDay, purchase);
+                    }
+                }
+            }
         }
-
-        fillMap(mapForAnalysis, storage.getPurchaseList());
-        fillMap(mapForAnalysisYear, storage.getPurchaseListYear());
-        fillMap(mapForAnalysisMonth, storage.getPurchaseListMonth());
-        fillMap(mapForAnalysisDay, storage.getPurchaseListDay());
-    }
-
-    protected void fillMap(Map<String, Integer> map, List<Purchase> purchaseList) {
-        for (Purchase purchase : purchaseList) {
-            int value = map.get(categorizator.getCategory(purchase.getTitle()));
-            value += purchase.getSum();
-            map.put(categorizator.getCategory(purchase.getTitle()), value);
-        }
-    }
-
-    public void doAnalytics() {
         report.setMaxCategory(findMaxCategory(mapForAnalysis));
         report.setMaxYearCategory(findMaxCategory(mapForAnalysisYear));
         report.setMaxMonthCategory(findMaxCategory(mapForAnalysisMonth));
         report.setMaxDayCategory(findMaxCategory(mapForAnalysisDay));
+
+    }
+
+    protected void fillMap(Map<String, Integer> map, Purchase purchase) {
+        String currentCategory = categorizator.getCategory(purchase.getTitle());
+        if (map.containsKey(currentCategory)) {
+            int value = map.get(currentCategory);
+            value += purchase.getSum();
+            map.put(currentCategory, value);
+        } else {
+            map.put(currentCategory, purchase.getSum());
+        }
     }
 
     protected MaxCategory findMaxCategory(Map<String, Integer> map) {
-        MaxCategory maxCategory = new MaxCategory("отсутствует", 0);
-
-        int maxValue = Collections.max(map.values());
-        if (maxValue != 0) {
+        MaxCategory maxCategory = new MaxCategory();
+        if (map.size() == 1) {
+            for (Map.Entry<String, Integer> kv : map.entrySet()) {
+                maxCategory.setCategory(kv.getKey());
+                maxCategory.setSum(kv.getValue());
+            }
+        } else {
+            int maxValue = Collections.max(map.values());
             for (Map.Entry<String, Integer> kv : map.entrySet()) {
                 if (kv.getValue().equals(maxValue)) {
                     maxCategory.setCategory(kv.getKey());
@@ -81,5 +87,17 @@ public class PurchaseAnalyzer {
 
     public Map<String, Integer> getMapForAnalysis() {
         return mapForAnalysis;
+    }
+
+    public Map<String, Integer> getMapForAnalysisYear() {
+        return mapForAnalysisYear;
+    }
+
+    public Map<String, Integer> getMapForAnalysisMonth() {
+        return mapForAnalysisMonth;
+    }
+
+    public Map<String, Integer> getMapForAnalysisDay() {
+        return mapForAnalysisDay;
     }
 }
