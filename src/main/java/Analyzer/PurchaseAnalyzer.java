@@ -1,6 +1,6 @@
 package Analyzer;
 
-import Caregorizator.Categorizable;
+import Categorizator.Categorizable;
 import Purchase.Purchase;
 import Storage.StorageForPurchases;
 

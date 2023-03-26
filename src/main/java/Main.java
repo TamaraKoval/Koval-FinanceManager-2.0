@@ -1,5 +1,5 @@
 import Analyzer.PurchaseAnalyzer;
-import Caregorizator.CategorizatorCSV;
+import Categorizator.CategorizatorCSV;
 import Purchase.Purchase;
 import Storage.StorageForPurchases;
 import com.google.gson.Gson;

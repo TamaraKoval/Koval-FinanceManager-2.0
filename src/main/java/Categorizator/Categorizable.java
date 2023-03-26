@@ -1,4 +1,4 @@
-package Caregorizator;
+package Categorizator;
 
 public interface Categorizable {
 
