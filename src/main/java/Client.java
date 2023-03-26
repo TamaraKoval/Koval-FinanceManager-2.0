@@ -20,41 +20,21 @@ public class Client {
         try (Socket socket = new Socket("localhost", 8989);
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
-
             Scanner scanner = new Scanner(System.in);
-            System.out.println("\nВы хотите добавить покупку? (да/нет)");
-            String answer;
-            int i = 0;
-            while (i < 3) {
 
-                answer = scanner.nextLine().toLowerCase();
-                if (answer.equals("да")) {
-                    System.out.println("\nВведите данные о покупке: ");
-                    Purchase purchase = getPurchase(scanner);
-                    String jsonPurchase = gson.toJson(purchase);
-                    out.println(jsonPurchase);
-                    System.out.println("Вы хотите добавить еще покупку? (да/нет)");
-                } else if (answer.equals("нет")) {
-                    out.println("0");
-                    break;
-                } else {
-                    System.out.println("Мы не поняли ваш ответ! Попробуйте еще раз");
-                    i++;
-                }
+            Purchase purchase = getPurchase(scanner);
+            if (purchase == null) {
+                throw new RuntimeException("Вы вводите некорректные данные! Пройдите проверку на бота и подключитесь снова");
             }
-            if (i == 3) {
-                System.out.println("Нам кажется, что вы - бот!=)\nМы сохранили ваши покупки, вам придется перезайти в программу");
+            String jsonPurchase = gson.toJson(purchase);
+            out.println(jsonPurchase);
+
+            System.out.println("\nИдет пересылка данных на сервер...\n");
+            String answerFromServer = in.readLine();
+            if (answerFromServer == null) {
+                System.out.println("Сервер не отвечает, перезайдите в программу");
             } else {
-                System.out.println("\nИдет пересылка данных на сервер...\n");
-                String answerFromServer = in.readLine();
-                if (answerFromServer==null) {
-                    System.out.println("Сервер не отвечает, перезайдите в программу");
-                } else {
-                    System.out.println(answerFromServer);
-                    String answerToServer = scanner.nextLine().toLowerCase();
-                    out.println(answerToServer);
-                    System.out.println(in.readLine());
-                }
+                System.out.println(answerFromServer);
             }
         } catch (IOException e) {
             System.out.println("Не могу подключиться к серверу");
@@ -102,9 +82,6 @@ public class Client {
 
             data = (date != null) ? new Purchase(title, date, sum) : null;
             if (data != null) break;
-        }
-        if (data == null) {
-            throw new RuntimeException("Вы вводите некорректные данные! Пройдите проверку на бота и подключитесь снова");
         }
         return data;
     }
